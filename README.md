@@ -1,5 +1,7 @@
 # SmartFix DF - Servis za popravke tehničkih uređaja
 
+**SmartFix DF** je servis za popravke raznih tehničkih uređaja kao što su PC, laptopi, mobiteli, printeri, mrežni uređaji te periferni uređaji poput tipkovnica i miševa. Servis raspolaže sa 5 tehničara koji su specijalizirani za određene skupine uređaja. Cilj servisa je optimizirati broj tehničara kako bi se maksimizirala zarada servisa.
+
 ---
 
 &nbsp;
@@ -8,14 +10,6 @@
 
 - Dario Klarić
 - Franjo Lovrić
-
----
-
-&nbsp;
-
-## Kratki opis projektnog zadatka
-
-**SmartFix DF** je servis za popravke raznih tehničkih uređaja kao što su PC, laptopi, mobiteli, printeri, mrežni uređaji te periferni uređaji poput tipkovnica i miševa. 
 
 ---
 
