@@ -90,130 +90,19 @@ to go
   if ticks > radno-vrijeme-pocetak and ticks <= radno-vrijeme-kraj [
     if ticks <= 180 [                                             ;; 09:00h - 12:00h
       if ticks mod 7 = 0 [                                        ;; 25 uređaja
-        create-uredjaji 1 [
-          setxy random-xcor random-ycor
-          set color red
-          set shape "computer"
-          set size 2
-          set vrijeme-dolaska ticks
-          set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
-          show (word "Novi uređaj stigao na popravak.")
-          let nearest-tehnicar min-one-of tehnicari [distance myself]
-          face nearest-tehnicar
-          move-to nearest-tehnicar
-
-          ask nearest-tehnicar [
-            ifelse status = "slobodan" [
-              set status "zauzet"
-              set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of myself)
-              let cijena-popravka 0
-              if vrsta-kvara = "osnovni" [
-                set cijena-popravka cijena-popravka-osnovni
-              ] if vrsta-kvara = "slozeni" [
-                set cijena-popravka cijena-popravka-slozeni
-              ] if vrsta-kvara = "hitni" [
-                set cijena-popravka cijena-popravka-hitni
-              ]
-
-              show (word "Tehnicar " who " popravlja uređaj " [who] of myself ", vrsta kvara: " vrsta-kvara)
-              ifelse ticks - [vrijeme-dolaska] of myself <= 30 [
-                show (word "Uređaj " [who] of myself " popravljen.")
-                ask myself [die]
-              ] [
-                show (word "Uređaj " [who] of myself " nije popravljen unutar 30 minuta i umire.")
-                ask myself [die]
-              ]
-            ] [
-              show (word "Uređaj " [who] of myself " čeka na popravak.")
-            ]
-          ]
-        ]
+        create-new-device
       ]
     ]
 
     if ticks > 180 and ticks <= 360 [                            ;; 12:00h - 15:00h
       if ticks mod 12 = 0 [                                      ;; 15 uređaja
-        create-uredjaji 1 [
-          setxy random-xcor random-ycor
-          set color red
-          set shape "computer"
-          set size 2
-          set vrijeme-dolaska ticks
-          set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
-          show (word "Novi uređaj stigao na popravak.")
-          let nearest-tehnicar min-one-of tehnicari [distance myself]
-          face nearest-tehnicar
-          move-to nearest-tehnicar
-
-          ask nearest-tehnicar [
-            ifelse status = "slobodan" [
-              set status "zauzet"
-              set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of myself)
-              let cijena-popravka 0
-              if vrsta-kvara = "osnovni" [
-                set cijena-popravka cijena-popravka-osnovni
-              ] if vrsta-kvara = "slozeni" [
-                set cijena-popravka cijena-popravka-slozeni
-              ] if vrsta-kvara = "hitni" [
-                set cijena-popravka cijena-popravka-hitni
-              ]
-
-              show (word "Tehnicar " who " popravlja uređaj " [who] of myself ", vrsta kvara: " vrsta-kvara)
-              ifelse ticks - [vrijeme-dolaska] of myself <= 30 [
-                show (word "Uređaj " [who] of myself " popravljen.")
-                ask myself [die]
-              ] [
-                show (word "Uređaj " [who] of myself " nije popravljen unutar 30 minuta i umire.")
-                ask myself [die]
-              ]
-            ] [
-              show (word "Uređaj " [who] of myself " čeka na popravak.")
-            ]
-          ]
-        ]
+        create-new-device
       ]
     ]
 
     if ticks > 360 and ticks <= 480 [                            ;; 15:00h - 17:00h
       if ticks mod 10 = 0 [                                      ;; 10 uređaja
-        create-uredjaji 1 [
-          setxy random-xcor random-ycor
-          set color red
-          set shape "computer"
-          set size 2
-          set vrijeme-dolaska ticks
-          set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
-          show (word "Novi uređaj stigao na popravak.")
-          let nearest-tehnicar min-one-of tehnicari [distance myself]
-          face nearest-tehnicar
-          move-to nearest-tehnicar
-
-          ask nearest-tehnicar [
-            ifelse status = "slobodan" [
-              set status "zauzet"
-              set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of myself)
-              let cijena-popravka 0
-              if vrsta-kvara = "osnovni" [
-                set cijena-popravka cijena-popravka-osnovni
-              ] if vrsta-kvara = "slozeni" [
-                set cijena-popravka cijena-popravka-slozeni
-              ] if vrsta-kvara = "hitni" [
-                set cijena-popravka cijena-popravka-hitni
-              ]
-
-              show (word "Tehnicar " who " popravlja uređaj " [who] of myself ", vrsta kvara: " vrsta-kvara)
-              ifelse ticks - [vrijeme-dolaska] of myself <= 30 [
-                show (word "Uređaj " [who] of myself " popravljen.")
-                ask myself [die]
-              ] [
-                show (word "Uređaj " [who] of myself " nije popravljen unutar 30 minuta i umire.")
-                ask myself [die]
-              ]
-            ] [
-              show (word "Uređaj " [who] of myself " čeka na popravak.")
-            ]
-          ]
-        ]
+        create-new-device
       ]
     ]
   ]
@@ -221,13 +110,46 @@ to go
   ;; Provjera statusa svakog tehničara i obrada uređaja
   ask tehnicari [
     if status = "slobodan" [
-      let nearest-uredjaj min-one-of uredjaji [distance myself]
-      if nearest-uredjaj != nobody [
-        ;; tehnicar repairs uredjaj
-        set status "zauzet"
-        ;; Update tehnicar's work time
-        set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of nearest-uredjaj)
+      let available-technicians turtles with [breed = tehnicari and status = "slobodan"]
+      ifelse any? available-technicians [
+        let nearest-uredjaj min-one-of uredjaji [distance myself]
+        if nearest-uredjaj != nobody [
+          ;; tehnicar repairs uredjaj
+          let nearest-tehnicar min-one-of available-technicians [distance myself]
+          face nearest-tehnicar
+          move-to nearest-tehnicar
+          ask nearest-tehnicar [
+            ;; Handle technician status and repair process
+          ]
+        ]
+      ] [
+        ;; Handle case where no technicians are available
+        show (word "Nema dostupnih tehničara za popravak uređaja.")
+        ;; Delay creation of the device or handle the situation as needed
+      ]
+    ]
+  ]
 
+  tick
+end
+
+to create-new-device
+  create-uredjaji 1 [
+    setxy random-xcor random-ycor
+    set color red
+    set shape "computer"
+    set size 2
+    set vrijeme-dolaska ticks
+    set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
+    show (word "Novi uređaj stigao na popravak.")
+    let nearest-tehnicar min-one-of tehnicari [distance myself]
+    face nearest-tehnicar
+    move-to nearest-tehnicar
+
+    ask nearest-tehnicar [
+      ifelse status = "slobodan" [
+        set status "zauzet"
+        set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of myself)
         let cijena-popravka 0
         if vrsta-kvara = "osnovni" [
           set cijena-popravka cijena-popravka-osnovni
@@ -236,23 +158,20 @@ to go
         ] if vrsta-kvara = "hitni" [
           set cijena-popravka cijena-popravka-hitni
         ]
-        show (word "Tehnicar " who " popravlja uređaj " [who] of nearest-uredjaj ", vrsta kvara: " vrsta-kvara)
-        ifelse ticks - [vrijeme-dolaska] of nearest-uredjaj <= 30 [
 
-          show (word "Uređaj " [who] of nearest-uredjaj " popravljen")
-          ask nearest-uredjaj [die]
+        show (word "Tehnicar " who " popravlja uređaj " [who] of myself ", vrsta kvara: " vrsta-kvara)
+        ifelse ticks - [vrijeme-dolaska] of myself <= 30 [
+          show (word "Uređaj " [who] of myself " popravljen.")
+          ask myself [die]
         ] [
-          ;; uredjaj not repaired within 30 ticks
-          show (word "Uređaj " [who] of nearest-uredjaj " nije popravljen unutar 30 minuta i umire.")
-          ask nearest-uredjaj [die]
+          show (word "Uređaj " [who] of myself " nije popravljen unutar 30 minuta i umire.")
+          ask myself [die]
         ]
-        ;; Reset tehnicar status after repair
-        set status "slobodan"
+      ] [
+        show (word "Uređaj " [who] of myself " čeka na popravak.")
       ]
     ]
   ]
-
-  tick
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -342,7 +261,7 @@ broj-aktivnih-tehnicara
 broj-aktivnih-tehnicara
 0
 5
-5.0
+3.0
 1
 1
 NIL
