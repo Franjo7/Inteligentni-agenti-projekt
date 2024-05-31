@@ -10,22 +10,25 @@ globals [
   radno-vrijeme-pocetak
   radno-vrijeme-kraj
   zarada
+  ukupni-troskovi
+  popravke
+  neuspjele-popravke
 ]
 
 turtles-own [
-  placa
-  status
-  radno-vrijeme
+  placa  ;; Plaća tehničara
+  status  ;; Status tehničara (slobodan ili zauzet)
+  radno-vrijeme  ;; Radno vrijeme tehničara
 ]
 
 uredjaji-own [
-  vrijeme-popravka
-  vrsta-kvara
-  vrijeme-dolaska
+  vrijeme-popravka ;; Vrijeme potrebno za popravak uređaja
+  vrsta-kvara  ;; Vrsta kvara uređaja (osnovni, složeni, hitni)
+  vrijeme-dolaska  ;; Vrijeme dolaska uređaja u servis
 ]
 
 tehnicari-own [
-  vrsta-kvara
+  vrsta-kvara  ;; Vrsta kvara koju tehničar može popraviti
 ]
 
 to setup
@@ -36,12 +39,15 @@ to setup
   set cijena-popravka-slozeni 120
   set cijena-popravka-hitni 150
   set zarada 0
+  set ukupni-troskovi 0
+  set popravke 0
+  set neuspjele-popravke 0
 
   ;; Postavljanje radnog vremena servisa                         ;; 8h * 60min = 480min
   set radno-vrijeme-pocetak 0                                    ;; 09:00h
   set radno-vrijeme-kraj 480                                     ;; 17:00h
 
-  let positions [[-35 -15] [-35 15] [0 0] [35 15] [35 -15]]      ;; Fiksne pozicije stolova i tehnicara
+  let positions [[-35 -15] [-35 15] [0 0] [35 15] [35 -15]]      ;; Fiksne pozicije stolova i tehničara
   let counter 0
 
   ;; Postavljanje početnih stanja tehničara i stolova
@@ -101,7 +107,7 @@ to go
     ]
 
     if ticks > 360 and ticks <= 480 [                            ;; 15:00h - 17:00h
-      if ticks mod 10 = 0 [                                      ;; 10 uređaja
+      if ticks mod 12 = 0 [                                      ;; 10 uređaja
         create-new-device
       ]
     ]
@@ -112,25 +118,52 @@ to go
     if status = "slobodan" [
       let available-technicians turtles with [breed = tehnicari and status = "slobodan"]
       ifelse any? available-technicians [
-        let nearest-uredjaj min-one-of uredjaji [distance myself]
+        let nearest-uredjaj min-one-of uredjaji [distance myself] ;; Pronalazi najbliži uređaj tehničaru
         if nearest-uredjaj != nobody [
           ;; tehnicar repairs uredjaj
-          let nearest-tehnicar min-one-of available-technicians [distance myself]
+          let nearest-tehnicar min-one-of available-technicians [distance myself] ;; Pronalazi najbližeg tehničara uređaju
           face nearest-tehnicar
           move-to nearest-tehnicar
+          ;; Rad tehničara na odabranom uredjaju
           ask nearest-tehnicar [
-            ;; Handle technician status and repair process
+            set status "zauzet"
+            set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of nearest-uredjaj)
+            let cijena-popravka 0
+            if [vrsta-kvara] of nearest-uredjaj = "osnovni" [
+              set cijena-popravka cijena-popravka-osnovni
+            ] if [vrsta-kvara] of nearest-uredjaj = "slozeni" [
+              set cijena-popravka cijena-popravka-slozeni
+            ] if [vrsta-kvara] of nearest-uredjaj = "hitni" [
+              set cijena-popravka cijena-popravka-hitni
+            ]
+            show (word "Tehničar " who " popravlja uređaj " [who] of nearest-uredjaj ", vrsta kvara: " [vrsta-kvara] of nearest-uredjaj)
+            ifelse ticks - [vrijeme-dolaska] of nearest-uredjaj <= 30 [
+              show (word "Uređaj " [who] of nearest-uredjaj " popravljen.")
+              set zarada zarada + cijena-popravka
+              set popravke popravke + 1
+              ask nearest-uredjaj [die]
+              set status "slobodan"
+            ] [
+              show (word "Uređaj " [who] of nearest-uredjaj " nije popravljen unutar 30 minuta i umire.")
+              set neuspjele-popravke neuspjele-popravke + 1
+              ask nearest-uredjaj [die]
+              set status "slobodan"
+            ]
           ]
         ]
       ] [
         ;; Handle case where no technicians are available
         show (word "Nema dostupnih tehničara za popravak uređaja.")
-        ;; Delay creation of the device or handle the situation as needed
       ]
     ]
   ]
 
   tick
+
+  if ticks = radno-vrijeme-kraj [
+    finish-day
+    stop
+  ]
 end
 
 to create-new-device
@@ -141,37 +174,57 @@ to create-new-device
     set size 2
     set vrijeme-dolaska ticks
     set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
+    set vrijeme-popravka 30; ; Prosjecno vrijeme za popravak svakog novog uređaja
     show (word "Novi uređaj stigao na popravak.")
-    let nearest-tehnicar min-one-of tehnicari [distance myself]
+    let nearest-tehnicar min-one-of tehnicari [distance myself]  ;; Pronalazi najbližeg tehničara uređaju
     face nearest-tehnicar
     move-to nearest-tehnicar
 
-    ask nearest-tehnicar [
-      ifelse status = "slobodan" [
-        set status "zauzet"
-        set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of myself)
-        let cijena-popravka 0
-        if vrsta-kvara = "osnovni" [
-          set cijena-popravka cijena-popravka-osnovni
-        ] if vrsta-kvara = "slozeni" [
-          set cijena-popravka cijena-popravka-slozeni
-        ] if vrsta-kvara = "hitni" [
-          set cijena-popravka cijena-popravka-hitni
-        ]
+    ;ask nearest-tehnicar [
+    ; ifelse status = "slobodan" [
+    ;    set status "zauzet"
+    ;    set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of myself)
+    ;    let cijena-popravka 0
+    ;    if vrsta-kvara = "osnovni" [
+    ;      set cijena-popravka cijena-popravka-osnovni
+    ;    ] if vrsta-kvara = "slozeni" [
+    ;      set cijena-popravka cijena-popravka-slozeni
+    ;    ] if vrsta-kvara = "hitni" [
+    ;      set cijena-popravka cijena-popravka-hitni
+    ;    ]
 
-        show (word "Tehnicar " who " popravlja uređaj " [who] of myself ", vrsta kvara: " vrsta-kvara)
-        ifelse ticks - [vrijeme-dolaska] of myself <= 30 [
-          show (word "Uređaj " [who] of myself " popravljen.")
-          ask myself [die]
-        ] [
-          show (word "Uređaj " [who] of myself " nije popravljen unutar 30 minuta i umire.")
-          ask myself [die]
-        ]
-      ] [
-        show (word "Uređaj " [who] of myself " čeka na popravak.")
-      ]
-    ]
+    ;    show (word "Tehnicar " who " popravlja uređaj " [who] of myself ", vrsta kvara: " item vrsta-kvara ["osnovni" "slozeni" "hitni"])
+    ;    ifelse ticks - [vrijeme-dolaska] of myself <= 30 [
+    ;      show (word "Uređaj " [who] of myself " popravljen.")
+    ;      ask myself [die]
+    ;    ] [
+    ;      show (word "Uređaj " [who] of myself " nije popravljen unutar 30 minuta i umire.")
+    ;      ask myself [die]
+    ;    ]
+    ;  ] [
+    ;    show (word "Uređaj " [who] of myself " čeka na popravak.")
+    ;  ]
+    ;]
   ]
+end
+
+to finish-day
+  set ukupni-troskovi (broj-aktivnih-tehnicara * cijena-po-satu * (radno-vrijeme-kraj / 60))
+  set zarada zarada - ukupni-troskovi
+  show (word "Ukupna dnevna zarada: " zarada)
+  show (word "Ukupni dnevni troškovi: " ukupni-troskovi)
+  show (word "Broj uspješnih popravaka: " popravke)
+  show (word "Broj neuspjelih popravaka: " neuspjele-popravke)
+  save-results
+end
+
+to save-results
+  file-open "C:\\Moje stavke\\(1) SUM FSRE Mostar\\5. GODINA\\3. Semestar\\Inteligentni agenti\\(6) Projekt\\rezultati.csv"
+  file-print (word "Ukupna dnevna zarada: " zarada)
+  file-print (word "Ukupni dnevni troskovi: " ukupni-troskovi)
+  file-print (word "Broj uspjesnih popravaka: " popravke)
+  file-print (word "Broj neuspjelih popravaka: " neuspjele-popravke)
+  file-close
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -202,10 +255,10 @@ ticks
 30.0
 
 BUTTON
-23
-45
-86
-78
+20
+28
+83
+61
 setup
 setup
 NIL
@@ -219,10 +272,10 @@ NIL
 1
 
 BUTTON
-23
-100
-86
-133
+96
+28
+159
+61
 go
 go
 NIL
@@ -236,10 +289,10 @@ NIL
 1
 
 BUTTON
-119
-101
-182
-134
+59
+76
+122
+109
 go
 go
 T
@@ -253,22 +306,117 @@ NIL
 1
 
 SLIDER
-21
-157
-210
-190
+11
+122
+183
+155
 broj-aktivnih-tehnicara
 broj-aktivnih-tehnicara
 0
 5
-3.0
+5.0
 1
 1
 NIL
 HORIZONTAL
 
+MONITOR
+1286
+17
+1388
+62
+Ukupna zarada:
+zarada
+17
+1
+11
+
+MONITOR
+1392
+17
+1497
+62
+Ukupni troškovi:
+ukupni-troskovi
+17
+1
+11
+
+MONITOR
+1287
+72
+1413
+117
+Uspješne popravke:
+popravke
+17
+1
+11
+
+MONITOR
+1287
+123
+1415
+168
+Neuspjele popravke:
+neuspjele-popravke
+17
+1
+11
+
 @#$#@#$#@
-# SmartFix DF - servis za popravke raznih tehničkih uređaja
+# Simulacija rada servisa za popravak tehničkih uređaja
+
+Servis za popravke _**„SmartFix DF“**_ raznih tehničkih uređaja (PC, laptopi, mrežni uređaji,  mobiteli, printeri, periferni uređaji (tipkovnica, miš…), hard i SSD diskovi i sl.). 
+
+## Opis rada servisa
+
+### 1. Tehničari i plaće:
+
+ Servis ima na raspolaganju **5 tehničara**
+ Plaća svakog tehničara iznosi **120 KM po satu**
+
+### 2. Vrijeme popravka i zarada:
+
+ Prosjek vremena potrebnog za popravak uređaja je **30 minuta (30 ticks)**
+ Cijena popravka prema **vrsti kvara**
+
+**Vrste kvara:** 
+ Osnovni popravak: **80 KM**
+ Složeni popravak: **120 KM**
+ Hitni popravak: **150 KM**
+	
+
+### 3. Raspored dolazaka uređaja:
+
+ Od 09:00 do 12:00 – **25 uređaja po satu**
+ Od 12:00 do 15:00 – **15 uređaja po satu**
+ Od 15:00 do 17:00 – **10 uređaja po satu**
+
+
+### 4. Model agenata:
+
+ Agenti predstavljaju **tehničare** i **uređaje** koji dolaze na popravak
+ Svaki otkucaj vremena simulacije predstavlja **jedan minut** radnog vremena servisa
+
+
+### 5. Parametri kontrole:
+
+ Broj aktivnih tehničara kontrolira se klizačem (može biti od **0 do 5**)
+ Ukoliko uređaj nakon pregleda kvara čeka **više od 30 minuta,** pretpostavka je da je ostavljen po strani te da je popravka iz nekog razloga nemoguća ili neisplativa te uređaj kao takav „umire“
+
+
+### 6. Optimizacija i uspješnost:
+ Uspješnost odabranog broja radnih mjesta ogleda se u odnosu **ukupne zarade** servisa (zbroj obavljenih popravaka) i **cijene rada** angažiranih tehničara.
+ U Excelu se tablično prikazuju dobiveni rezultati koji označavaju **optimalno rješenje**
+
+## Zaključak
+
+> Ovu simulacija daje nam mogućnost eksperimentiranja s brojem aktivnih tehničara kako bi pronašli optimalnu konfiguraciju koja minimizira vrijeme čekanja i maksimizira dobit servisa. Pritom prikazuje ukupnu zaradu, broj obavljenih popravaka i druge relevantne parametre.
+
+## Dodatno (prof. Krešimir)
+
+> Odraditi zadatak i realizirati simulacijski model u kojem pojedini tehničari mogu popravljati samo neke skupine uređaja!
 @#$#@#$#@
 default
 true
@@ -454,19 +602,11 @@ Polygon -7500403 true true 150 15 15 120 60 285 240 285 285 120
 person
 false
 0
-Rectangle -1 true false 120 90 180 180
-Polygon -13345367 true false 135 90 150 105 135 180 150 195 165 180 150 105 165 90
-Polygon -7500403 true true 120 90 105 90 60 195 90 210 116 154 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 183 153 210 210 240 195 195 90 180 90 150 165
 Circle -7500403 true true 110 5 80
-Rectangle -7500403 true true 127 76 172 91
-Line -16777216 false 172 90 161 94
-Line -16777216 false 128 90 139 94
-Polygon -13345367 true false 195 225 195 300 270 270 270 195
-Rectangle -13791810 true false 180 225 195 300
-Polygon -14835848 true false 180 226 195 226 270 196 255 196
-Polygon -13345367 true false 209 202 209 216 244 202 243 188
-Line -16777216 false 180 90 150 165
-Line -16777216 false 120 90 150 165
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Rectangle -7500403 true true 127 79 172 94
+Polygon -7500403 true true 195 90 240 150 225 180 165 105
+Polygon -7500403 true true 105 90 60 150 75 180 135 105
 
 plant
 false
