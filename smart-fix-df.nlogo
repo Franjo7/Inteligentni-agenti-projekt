@@ -63,22 +63,32 @@ to setup
     setxy (first position-item) (last position-item)
 
     ;; Stvaranje stola pored svakog tehničara
-    ifelse (first position-item) < 0 [
+    if (first position-item) < 0 [
       ask patch (first position-item + 2) (last position-item) [
         sprout 1 [
           set breed stolovi
           set shape "square"
-          set color brown
+          set color white
           set size 3
         ]
       ]
     ]
-    [
+    if (first position-item) > 0 [
       ask patch (first position-item - 2) (last position-item) [
         sprout 1 [
           set breed stolovi
           set shape "square"
-          set color brown
+          set color green
+          set size 3
+        ]
+      ]
+    ]
+    if (first position-item) = 0 [
+      ask patch (first position-item - 2) (last position-item) [
+        sprout 1 [
+          set breed stolovi
+          set shape "square"
+          set color yellow
           set size 3
         ]
       ]
@@ -177,10 +187,13 @@ to create-new-device
     set vrijeme-popravka 30  ;; Prosjecno vrijeme za popravak svakog novog uređaja
     ;; Ispisivanje poruke ovisno o obliku uređaja koji se stvara
     if shape = "computer" [
+      set color white
       show "Računalo došlo na popravak."
     ] if shape = "mouse" [
+      set color yellow
       show "Miš došao na popravak."
     ] if shape = "phone" [
+      set color green
       show "Telefon došao na popravak."
     ]
 
