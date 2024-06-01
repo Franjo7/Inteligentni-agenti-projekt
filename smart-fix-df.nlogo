@@ -174,37 +174,26 @@ to create-new-device
     set size 2
     set vrijeme-dolaska ticks
     set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
-    set vrijeme-popravka 30; ; Prosjecno vrijeme za popravak svakog novog uređaja
+    set vrijeme-popravka 30  ;; Prosjecno vrijeme za popravak svakog novog uređaja
     show (word "Novi uređaj stigao na popravak.")
+
     let nearest-tehnicar min-one-of tehnicari [distance myself]  ;; Pronalazi najbližeg tehničara uređaju
-    face nearest-tehnicar
-    move-to nearest-tehnicar
 
-    ;ask nearest-tehnicar [
-    ; ifelse status = "slobodan" [
-    ;    set status "zauzet"
-    ;    set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of myself)
-    ;    let cijena-popravka 0
-    ;    if vrsta-kvara = "osnovni" [
-    ;      set cijena-popravka cijena-popravka-osnovni
-    ;    ] if vrsta-kvara = "slozeni" [
-    ;      set cijena-popravka cijena-popravka-slozeni
-    ;    ] if vrsta-kvara = "hitni" [
-    ;      set cijena-popravka cijena-popravka-hitni
-    ;    ]
+    ;; Provjeri je li najbliži tehničar pronađen
+    ifelse nearest-tehnicar != nobody [
+      ;; Pomakni se prema tehničaru korak po korak
+      while [distance nearest-tehnicar > 1] [
+        let step-distance min (list 1 (distance nearest-tehnicar))
+        let delta-x ([xcor] of nearest-tehnicar - [xcor] of self) / distance nearest-tehnicar * step-distance
+        let delta-y ([ycor] of nearest-tehnicar - [ycor] of self) / distance nearest-tehnicar * step-distance
+        setxy ([xcor] of self + delta-x) ([ycor] of self + delta-y)
+        wait 0.1  ;; Pričekaj 0.1 ticka
+      ]
 
-    ;    show (word "Tehnicar " who " popravlja uređaj " [who] of myself ", vrsta kvara: " item vrsta-kvara ["osnovni" "slozeni" "hitni"])
-    ;    ifelse ticks - [vrijeme-dolaska] of myself <= 30 [
-    ;      show (word "Uređaj " [who] of myself " popravljen.")
-    ;      ask myself [die]
-    ;    ] [
-    ;      show (word "Uređaj " [who] of myself " nije popravljen unutar 30 minuta i umire.")
-    ;      ask myself [die]
-    ;    ]
-    ;  ] [
-    ;    show (word "Uređaj " [who] of myself " čeka na popravak.")
-    ;  ]
-    ;]
+      face nearest-tehnicar  ;; Okreni se prema tehničaru
+    ] [
+      show "Nema dostupnih tehničara za popravak uređaja."
+    ]
   ]
 end
 
@@ -219,7 +208,7 @@ to finish-day
 end
 
 to save-results
-  file-open "C:\\Moje stavke\\(1) SUM FSRE Mostar\\5. GODINA\\3. Semestar\\Inteligentni agenti\\(6) Projekt\\rezultati.csv"
+  file-open "C:\\Users\\Franjo\\Desktop\\Inteligentni agenti - projekt\\rezultati.csv"
   file-print (word "Ukupna dnevna zarada: " zarada)
   file-print (word "Ukupni dnevni troskovi: " ukupni-troskovi)
   file-print (word "Broj uspjesnih popravaka: " popravke)
@@ -314,7 +303,7 @@ broj-aktivnih-tehnicara
 broj-aktivnih-tehnicara
 0
 5
-5.0
+2.0
 1
 1
 NIL
