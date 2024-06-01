@@ -136,9 +136,9 @@ to go
             ] if [vrsta-kvara] of nearest-uredjaj = "hitni" [
               set cijena-popravka cijena-popravka-hitni
             ]
-            show (word "Tehničar " who " popravlja uređaj " [who] of nearest-uredjaj ", vrsta kvara: " [vrsta-kvara] of nearest-uredjaj)
+            show (word "Tehničar " who " popravlja uređaj, vrsta kvara: " [vrsta-kvara] of nearest-uredjaj)
             ifelse ticks - [vrijeme-dolaska] of nearest-uredjaj <= 30 [
-              show (word "Uređaj " [who] of nearest-uredjaj " popravljen.")
+              show (word "Uređaj popravljen.")
               set zarada zarada + cijena-popravka
               set popravke popravke + 1
               ask nearest-uredjaj [die]
@@ -170,12 +170,19 @@ to create-new-device
   create-uredjaji 1 [
     setxy random-xcor random-ycor
     set color red
-    set shape "computer"
+    set shape one-of ["computer" "mouse" "phone"]  ;; Stvara uređaj nasumično odabranog oblika
     set size 2
     set vrijeme-dolaska ticks
     set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
     set vrijeme-popravka 30  ;; Prosjecno vrijeme za popravak svakog novog uređaja
-    show (word "Novi uređaj stigao na popravak.")
+    ;; Ispisivanje poruke ovisno o obliku uređaja koji se stvara
+    if shape = "computer" [
+      show "Računalo došlo na popravak."
+    ] if shape = "mouse" [
+      show "Miš došao na popravak."
+    ] if shape = "phone" [
+      show "Telefon došao na popravak."
+    ]
 
     let nearest-tehnicar min-one-of tehnicari [distance myself]  ;; Pronalazi najbližeg tehničara uređaju
 
@@ -208,6 +215,7 @@ to finish-day
 end
 
 to save-results
+  ; file-open "C:\\Moje stavke\\(1) SUM FSRE Mostar\\5. GODINA\\3. Semestar\\Inteligentni agenti\\(6) Projekt\\rezultati.csv"
   file-open "C:\\Users\\Franjo\\Desktop\\Inteligentni agenti - projekt\\rezultati.csv"
   file-print (word "Ukupna dnevna zarada: " zarada)
   file-print (word "Ukupni dnevni troskovi: " ukupni-troskovi)
@@ -303,7 +311,7 @@ broj-aktivnih-tehnicara
 broj-aktivnih-tehnicara
 0
 5
-2.0
+5.0
 1
 1
 NIL
@@ -484,6 +492,27 @@ Rectangle -7500403 true true 45 210 255 255
 Rectangle -10899396 true false 249 223 237 217
 Line -16777216 false 60 225 120 225
 
+computer server
+false
+0
+Rectangle -7500403 true true 75 30 225 270
+Line -16777216 false 210 30 210 195
+Line -16777216 false 90 30 90 195
+Line -16777216 false 90 195 210 195
+Rectangle -10899396 true false 184 34 200 40
+Rectangle -10899396 true false 184 47 200 53
+Rectangle -10899396 true false 184 63 200 69
+Line -16777216 false 90 210 90 255
+Line -16777216 false 105 210 105 255
+Line -16777216 false 120 210 120 255
+Line -16777216 false 135 210 135 255
+Line -16777216 false 165 210 165 255
+Line -16777216 false 180 210 180 255
+Line -16777216 false 195 210 195 255
+Line -16777216 false 210 210 210 255
+Rectangle -7500403 true true 84 232 219 236
+Rectangle -16777216 false false 101 172 112 184
+
 cow
 false
 0
@@ -583,6 +612,17 @@ true
 0
 Line -7500403 true 150 0 150 150
 
+mouse
+false
+0
+Polygon -7500403 true true 38 162 24 165 19 174 22 192 47 213 90 225 135 230 161 240 178 262 150 246 117 238 73 232 36 220 11 196 7 171 15 153 37 146 46 145
+Polygon -7500403 true true 289 142 271 165 237 164 217 185 235 192 254 192 259 199 245 200 248 203 226 199 200 194 155 195 122 185 84 187 91 195 82 192 83 201 72 190 67 199 62 185 46 183 36 165 40 134 57 115 74 106 60 109 90 97 112 94 92 93 130 86 154 88 134 81 183 90 197 94 183 86 212 95 211 88 224 83 235 88 248 97 246 90 257 107 255 97 270 120
+Polygon -16777216 true false 234 100 220 96 210 100 214 111 228 116 239 115
+Circle -16777216 true false 246 117 20
+Line -7500403 true 270 153 282 174
+Line -7500403 true 272 153 255 173
+Line -7500403 true 269 156 268 177
+
 pentagon
 false
 0
@@ -596,6 +636,25 @@ Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300
 Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
+
+phone
+false
+0
+Polygon -7500403 true true 75 273 60 255 60 195 84 165 75 165 45 150 45 120 60 90 105 75 195 75 240 90 255 120 255 150 223 165 215 165 240 195 240 255 226 274
+Polygon -16777216 false false 75 273 60 255 60 195 105 135 105 120 105 105 120 105 120 120 180 120 180 105 195 105 195 135 240 195 240 255 225 273
+Polygon -16777216 false false 81 165 74 165 44 150 44 120 59 90 104 75 194 75 239 90 254 120 254 150 218 167 194 135 194 105 179 105 179 120 119 120 119 105 104 105 104 135 81 166 78 165
+Rectangle -16777216 false false 120 165 135 180
+Rectangle -16777216 false false 165 165 180 180
+Rectangle -16777216 false false 142 165 157 180
+Rectangle -16777216 false false 165 188 180 203
+Rectangle -16777216 false false 142 188 157 203
+Rectangle -16777216 false false 120 188 135 203
+Rectangle -16777216 false false 120 210 135 225
+Rectangle -16777216 false false 142 210 157 225
+Rectangle -16777216 false false 165 210 180 225
+Rectangle -16777216 false false 120 233 135 248
+Rectangle -16777216 false false 142 233 157 248
+Rectangle -16777216 false false 165 233 180 248
 
 plant
 false
