@@ -125,51 +125,6 @@ to go
     ]
   ]
 
-  ;; Provjera statusa svakog tehničara i obrada uređaja
-  ask tehnicari [
-    if status = "slobodan" [
-      let available-technicians turtles with [breed = tehnicari and status = "slobodan"]
-      ifelse any? available-technicians [
-        let nearest-uredjaj min-one-of uredjaji [distance myself]
-        if nearest-uredjaj != nobody [
-          ;; tehnicar popravlja uredjaj
-          let nearest-tehnicar min-one-of available-technicians [distance myself]
-          face nearest-tehnicar
-          move-to nearest-tehnicar
-          ;; Rad tehničara na odabranom uredjaju
-          ask nearest-tehnicar [
-            set status "zauzet"
-            set radno-vrijeme (radno-vrijeme + [vrijeme-popravka] of nearest-uredjaj)
-            let cijena-popravka 0
-            if [vrsta-kvara] of nearest-uredjaj = "osnovni" [
-              set cijena-popravka cijena-popravka-osnovni
-            ] if [vrsta-kvara] of nearest-uredjaj = "slozeni" [
-              set cijena-popravka cijena-popravka-slozeni
-            ] if [vrsta-kvara] of nearest-uredjaj = "hitni" [
-              set cijena-popravka cijena-popravka-hitni
-            ]
-            show (word "Tehničar " who " popravlja uređaj, vrsta kvara: " [vrsta-kvara] of nearest-uredjaj)
-            ifelse ticks - [vrijeme-dolaska] of nearest-uredjaj <= 30 [
-              show (word "Uređaj popravljen.")
-              set zarada zarada + cijena-popravka
-              set popravke popravke + 1
-              ask nearest-uredjaj [die]
-              set status "slobodan"
-            ] [
-              show (word "Uređaj " [who] of nearest-uredjaj " nije popravljen unutar 30 minuta i umire.")
-              set neuspjele-popravke neuspjele-popravke + 1
-              ask nearest-uredjaj [die]
-              set status "slobodan"
-              set zarada zarada + cijena-popravka
-            ]
-          ]
-        ]
-      ] [
-        show (word "Nema dostupnih tehničara za popravak uređaja.")
-      ]
-    ]
-  ]
-
   tick
 
   if ticks = radno-vrijeme-kraj [
@@ -236,18 +191,30 @@ to create-new-device
           set zarada zarada + cijena-popravka
           set popravke popravke + 1
           die
+          set status "slobodan"
         ] [
-          show (word "Uređaj " who " nije popravljen unutar 30 minuta i umire.")
+          show (word "Uređaj " who " nije popravljen unutar 30 minuta. Nemogućnost/neisplativost popravka.")
           set neuspjele-popravke neuspjele-popravke + 1
+          wait 1
+          set color red
+          wait 1
           die
+          set status "slobodan"
         ]
       ] [
         show "Nema dostupnih tehničara za taj uređaj."
         set neuspjele-popravke neuspjele-popravke + 1
+        wait 1
+        set color red
+        wait 1
         die
       ]
     ]
       show "Nema dostupnih tehničara za taj uređaj."
+      wait 1
+      set color red
+      wait 1
+      die
   ]
 end
 
@@ -263,14 +230,16 @@ to finish-day
 end
 
 to save-results
-  ; file-open "C:\\Moje stavke\\(1) SUM FSRE Mostar\\5. GODINA\\3. Semestar\\Inteligentni agenti\\(6) Projekt\\rezultati.csv"
-  file-open "C:\\Users\\Franjo\\Desktop\\Inteligentni agenti - projekt\\rezultati.csv"
+  let file-path (word user-directory "rezultati.csv")
+  file-open file-path
   file-print (word "Ukupna dnevna zarada: " zarada)
   file-print (word "Ukupni dnevni troskovi: " ukupni-troskovi)
   file-print (word "Broj uspjesnih popravaka: " popravke)
   file-print (word "Broj neuspjelih popravaka: " neuspjele-popravke)
   file-close
 end
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -359,7 +328,7 @@ broj-aktivnih-tehnicara
 broj-aktivnih-tehnicara
 0
 5
-5.0
+3.0
 1
 1
 NIL
@@ -457,7 +426,7 @@ Servis za popravke _**„SmartFix DF“**_ raznih tehničkih uređaja (PC, lapto
 
 ## Zaključak
 
-> Ovu simulacija daje nam mogućnost eksperimentiranja s brojem aktivnih tehničara kako bi pronašli optimalnu konfiguraciju koja minimizira vrijeme čekanja i maksimizira dobit servisa. Pritom prikazuje ukupnu zaradu, broj obavljenih popravaka i druge relevantne parametre.
+> Ova simulacija daje nam mogućnost eksperimentiranja s brojem aktivnih tehničara kako bi pronašli optimalnu konfiguraciju koja minimizira vrijeme čekanja i maksimizira dobit servisa. Pritom prikazuje ukupnu zaradu, broj obavljenih popravaka i druge relevantne parametre.
 
 ## Dodatno (prof. Krešimir)
 
