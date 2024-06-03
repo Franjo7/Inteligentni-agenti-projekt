@@ -16,19 +16,19 @@ globals [
 ]
 
 turtles-own [
-  placa  ;; Plaća tehničara
-  status  ;; Status tehničara (slobodan ili zauzet)
-  radno-vrijeme  ;; Radno vrijeme tehničara
+  placa            ;; Plaća tehničara
+  status           ;; Status tehničara (slobodan ili zauzet)
+  radno-vrijeme    ;; Radno vrijeme tehničara
 ]
 
 uredjaji-own [
   vrijeme-popravka ;; Vrijeme potrebno za popravak uređaja
-  vrsta-kvara  ;; Vrsta kvara uređaja (osnovni, složeni, hitni)
+  vrsta-kvara      ;; Vrsta kvara uređaja (osnovni, složeni, hitni)
   vrijeme-dolaska  ;; Vrijeme dolaska uređaja u servis
 ]
 
 tehnicari-own [
-  vrsta-kvara  ;; Vrsta kvara koju tehničar može popraviti
+  vrsta-kvara      ;; Vrsta kvara koju tehničar može popraviti
 ]
 
 to setup
@@ -43,11 +43,11 @@ to setup
   set popravke 0
   set neuspjele-popravke 0
 
-  ;; Postavljanje radnog vremena servisa                         ;; 8h * 60min = 480min
-  set radno-vrijeme-pocetak 0                                    ;; 09:00h
-  set radno-vrijeme-kraj 480                                     ;; 17:00h
+  ;; Postavljanje radnog vremena servisa
+  set radno-vrijeme-pocetak 0
+  set radno-vrijeme-kraj 480
 
-  let positions [[-35 -15] [-35 15] [0 0] [35 15] [35 -15]]      ;; Fiksne pozicije stolova i tehničara
+  let positions [[-35 -15] [-35 15] [0 0] [35 15] [35 -15]]
   let counter 0
 
   ;; Postavljanje početnih stanja tehničara i stolova
@@ -58,37 +58,39 @@ to setup
     set placa cijena-po-satu
     set status "slobodan"
     set radno-vrijeme 0
-    ;; Postavljanje pozicije za svakog tehničara
     let position-item item counter positions
     setxy (first position-item) (last position-item)
 
-    ;; Stvaranje stola pored svakog tehničara
+    let table-colors [white yellow green]
+
     if (first position-item) < 0 [
       ask patch (first position-item + 2) (last position-item) [
         sprout 1 [
           set breed stolovi
           set shape "square"
-          set color white
+          set color one-of table-colors
           set size 3
         ]
       ]
     ]
+
     if (first position-item) > 0 [
       ask patch (first position-item - 2) (last position-item) [
         sprout 1 [
           set breed stolovi
           set shape "square"
-          set color green
+          set color one-of table-colors
           set size 3
         ]
       ]
     ]
+
     if (first position-item) = 0 [
       ask patch (first position-item - 2) (last position-item) [
         sprout 1 [
           set breed stolovi
           set shape "square"
-          set color yellow
+          set color one-of table-colors
           set size 3
         ]
       ]
@@ -103,7 +105,7 @@ end
 
 to go
   ;; Provjera je li trenutni tick unutar radnog vremena servisa
-  if ticks > radno-vrijeme-pocetak and ticks <= radno-vrijeme-kraj [
+  if ticks >= radno-vrijeme-pocetak and ticks <= radno-vrijeme-kraj [
     if ticks <= 180 [                                             ;; 09:00h - 12:00h
       if ticks mod 7 = 0 [                                        ;; 25 uređaja
         create-new-device
@@ -128,10 +130,10 @@ to go
     if status = "slobodan" [
       let available-technicians turtles with [breed = tehnicari and status = "slobodan"]
       ifelse any? available-technicians [
-        let nearest-uredjaj min-one-of uredjaji [distance myself] ;; Pronalazi najbliži uređaj tehničaru
+        let nearest-uredjaj min-one-of uredjaji [distance myself]
         if nearest-uredjaj != nobody [
-          ;; tehnicar repairs uredjaj
-          let nearest-tehnicar min-one-of available-technicians [distance myself] ;; Pronalazi najbližeg tehničara uređaju
+          ;; tehnicar popravlja uredjaj
+          let nearest-tehnicar min-one-of available-technicians [distance myself]
           face nearest-tehnicar
           move-to nearest-tehnicar
           ;; Rad tehničara na odabranom uredjaju
@@ -158,11 +160,11 @@ to go
               set neuspjele-popravke neuspjele-popravke + 1
               ask nearest-uredjaj [die]
               set status "slobodan"
+              set zarada zarada + cijena-popravka
             ]
           ]
         ]
       ] [
-        ;; Handle case where no technicians are available
         show (word "Nema dostupnih tehničara za popravak uređaja.")
       ]
     ]
@@ -180,12 +182,12 @@ to create-new-device
   create-uredjaji 1 [
     setxy random-xcor random-ycor
     set color red
-    set shape one-of ["computer" "mouse" "phone"]  ;; Stvara uređaj nasumično odabranog oblika
+    set shape one-of ["computer" "mouse" "phone"]
     set size 2
     set vrijeme-dolaska ticks
     set vrsta-kvara one-of ["osnovni" "slozeni" "hitni"]
-    set vrijeme-popravka 30  ;; Prosjecno vrijeme za popravak svakog novog uređaja
-    ;; Ispisivanje poruke ovisno o obliku uređaja koji se stvara
+    set vrijeme-popravka 30
+
     if shape = "computer" [
       set color white
       show "Računalo došlo na popravak."
@@ -197,25 +199,58 @@ to create-new-device
       show "Telefon došao na popravak."
     ]
 
-    let nearest-tehnicar min-one-of tehnicari [distance myself]  ;; Pronalazi najbližeg tehničara uređaju
+    ;; Provjerava postoji li slobodan tehničar za uređaj
+    let available-technicians turtles with [breed = tehnicari and status = "slobodan"]
+    if any? available-technicians [
+      ;; Pronalaženje stola iste boje kao uređaj
+      let nearest-table one-of stolovi with [color = [color] of myself]
 
-    ;; Provjeri je li najbliži tehničar pronađen
-    ifelse nearest-tehnicar != nobody [
-      ;; Pomakni se prema tehničaru korak po korak
-      while [distance nearest-tehnicar > 1] [
-        let step-distance min (list 1 (distance nearest-tehnicar))
-        let delta-x ([xcor] of nearest-tehnicar - [xcor] of self) / distance nearest-tehnicar * step-distance
-        let delta-y ([ycor] of nearest-tehnicar - [ycor] of self) / distance nearest-tehnicar * step-distance
-        setxy ([xcor] of self + delta-x) ([ycor] of self + delta-y)
-        wait 0.1  ;; Pričekaj 0.1 ticka
+      ;; Provjerava je li pronađen stol iste boje
+      ifelse nearest-table != nobody [
+        while [distance nearest-table > 1] [
+          let step-distance min (list 1 (distance nearest-table))
+          let delta-x ([xcor] of nearest-table - [xcor] of self) / distance nearest-table * step-distance
+          let delta-y ([ycor] of nearest-table - [ycor] of self) / distance nearest-table * step-distance
+          setxy ([xcor] of self + delta-x) ([ycor] of self + delta-y)
+          wait 0.1
+        ]
+
+        face nearest-table
+
+        let cijena-popravka 0
+        if [vrsta-kvara] of self = "osnovni" [
+          set cijena-popravka cijena-popravka-osnovni
+        ] if [vrsta-kvara] of self = "slozeni" [
+          set cijena-popravka cijena-popravka-slozeni
+        ] if [vrsta-kvara] of self = "hitni" [
+          set cijena-popravka cijena-popravka-hitni
+        ]
+
+        ask self [
+          set status "zauzet"
+          set radno-vrijeme (radno-vrijeme + vrijeme-popravka)
+        ]
+        show (word "Tehničar popravlja uređaj, vrsta kvara: " vrsta-kvara)
+        ifelse ticks - vrijeme-dolaska <= 30 [
+          show (word "Uređaj popravljen.")
+          set zarada zarada + cijena-popravka
+          set popravke popravke + 1
+          die
+        ] [
+          show (word "Uređaj " who " nije popravljen unutar 30 minuta i umire.")
+          set neuspjele-popravke neuspjele-popravke + 1
+          die
+        ]
+      ] [
+        show "Nema dostupnih tehničara za taj uređaj."
+        set neuspjele-popravke neuspjele-popravke + 1
+        die
       ]
-
-      face nearest-tehnicar  ;; Okreni se prema tehničaru
-    ] [
-      show "Nema dostupnih tehničara za popravak uređaja."
     ]
+      show "Nema dostupnih tehničara za taj uređaj."
   ]
 end
+
 
 to finish-day
   set ukupni-troskovi (broj-aktivnih-tehnicara * cijena-po-satu * (radno-vrijeme-kraj / 60))
