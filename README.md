@@ -20,7 +20,7 @@ _**SmartFix DF**_ je servis za popravke raznih tehničkih uređaja kao što su P
 >### Kloniranje projekta:
 
 ```
- https://github.com/Franjo7/Inteligentni-agenti-projekt.git
+ git clone https://github.com/Franjo7/Inteligentni-agenti-projekt.git
 ```
 
 >### Pokretanje projekta:
@@ -103,6 +103,4 @@ Provedena simulacija pružila je dubinsku analizu učinkovitosti tehničara unut
 
 &nbsp;
 
-© Inteligentni Agenti (NetLogo) 2024.
-
----
+© Inteligentni agenti (NetLogo) 2024.
