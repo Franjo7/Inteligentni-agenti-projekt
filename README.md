@@ -22,7 +22,7 @@ _**SmartFix DF**_ je servis za popravke raznih tehničkih uređaja kao što su P
  https://github.com/Franjo7/Inteligentni-agenti-projekt.git
 ```
 
->### Pokretanje projekta
+>### Pokretanje projekta:
 
 Pokretanje projekta sa [__NetLogo__](https://ccl.northwestern.edu/netlogo/download.shtml)
 
