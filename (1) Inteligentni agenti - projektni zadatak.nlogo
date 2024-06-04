@@ -238,7 +238,6 @@ to save-results
   file-print (word "Broj neuspjesnih popravaka: " neuspjesne-popravke)
   file-close
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -388,23 +387,24 @@ Servis za popravke _**„SmartFix DF“**_ raznih tehničkih uređaja (PC, lapto
 
  Servis ima na raspolaganju **5 tehničara**
  Plaća svakog tehničara iznosi **120 KM po satu**
+ Svaki tehničar može popravljati samo **određene skupine uređaja**
 
 ### 2. Vrijeme popravka i zarada:
 
- Prosjek vremena potrebnog za popravak uređaja je **30 minuta (30 ticks)**
+ Prosječno vrijeme potrebno za popravak uređaja je **30 minuta _(30 ticks)_**
  Cijena popravka prema **vrsti kvara**
 
 **Vrste kvara:** 
- Osnovni popravak: **80 KM**
- Složeni popravak: **120 KM**
- Hitni popravak: **150 KM**
+ Osnovni popravak → **80 KM**
+ Složeni popravak → **120 KM**
+ Hitni popravak → **150 KM**
 	
 
 ### 3. Raspored dolazaka uređaja:
 
- Od 09:00 do 12:00 – **25 uređaja po satu**
- Od 12:00 do 15:00 – **15 uređaja po satu**
- Od 15:00 do 17:00 – **10 uređaja po satu**
+ Od 09:00 do 12:00 → **25 uređaja po satu**
+ Od 12:00 do 15:00 → **15 uređaja po satu**
+ Od 15:00 do 17:00 → **10 uređaja po satu**
 
 
 ### 4. Model agenata:
@@ -416,7 +416,7 @@ Servis za popravke _**„SmartFix DF“**_ raznih tehničkih uređaja (PC, lapto
 ### 5. Parametri kontrole:
 
  Broj aktivnih tehničara kontrolira se klizačem (može biti od **0 do 5**)
- Ukoliko uređaj nakon pregleda kvara čeka **više od 30 minuta,** pretpostavka je da je ostavljen po strani te da je popravka iz nekog razloga nemoguća ili neisplativa te uređaj kao takav „umire“
+ Ukoliko uređaj čeka **više od 30 minuta** nakon pregleda kvara, smatra se da je popravka nemoguća ili neisplativa te uređaj kao agent "umire"
 
 
 ### 6. Optimizacija i uspješnost:
@@ -425,7 +425,7 @@ Servis za popravke _**„SmartFix DF“**_ raznih tehničkih uređaja (PC, lapto
 
 ### 7. Dodatno:
 
- Realiziran je simulacijski model u kojem pojedini tehničari mogu popravljati samo **određene skupine uređaja!**
+ Realiziran je simulacijski model u kojem pojedini tehničari mogu popravljati samo **određene skupine uređaja**
 
 ## Zaključak
 
