@@ -12,7 +12,7 @@ globals [
   zarada
   ukupni-troskovi
   popravke
-  neuspjele-popravke
+  neuspjesne-popravke
 ]
 
 turtles-own [
@@ -41,7 +41,7 @@ to setup
   set zarada 0
   set ukupni-troskovi 0
   set popravke 0
-  set neuspjele-popravke 0
+  set neuspjesne-popravke 0
 
   ;; Postavljanje radnog vremena servisa
   set radno-vrijeme-pocetak 0
@@ -194,7 +194,7 @@ to create-new-device
           set status "slobodan"
         ] [
           show (word "Uređaj " who " nije popravljen unutar 30 minuta. Nemogućnost/neisplativost popravka.")
-          set neuspjele-popravke neuspjele-popravke + 1
+          set neuspjesne-popravke neuspjesne-popravke + 1
           wait 1
           set color red
           wait 1
@@ -203,7 +203,7 @@ to create-new-device
         ]
       ] [
         show "Nema dostupnih tehničara za taj uređaj."
-        set neuspjele-popravke neuspjele-popravke + 1
+        set neuspjesne-popravke neuspjesne-popravke + 1
         wait 1
         set color red
         wait 1
@@ -225,7 +225,7 @@ to finish-day
   show (word "Ukupna dnevna zarada: " zarada)
   show (word "Ukupni dnevni troškovi: " ukupni-troskovi)
   show (word "Broj uspješnih popravaka: " popravke)
-  show (word "Broj neuspjelih popravaka: " neuspjele-popravke)
+  show (word "Broj neuspješnih popravaka: " neuspjesne-popravke)
   save-results
 end
 
@@ -235,10 +235,9 @@ to save-results
   file-print (word "Ukupna dnevna zarada: " zarada)
   file-print (word "Ukupni dnevni troskovi: " ukupni-troskovi)
   file-print (word "Broj uspjesnih popravaka: " popravke)
-  file-print (word "Broj neuspjelih popravaka: " neuspjele-popravke)
+  file-print (word "Broj neuspjesnih popravaka: " neuspjesne-popravke)
   file-close
 end
-
 
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -328,7 +327,7 @@ broj-aktivnih-tehnicara
 broj-aktivnih-tehnicara
 0
 5
-3.0
+5.0
 1
 1
 NIL
@@ -370,10 +369,10 @@ popravke
 MONITOR
 1287
 123
-1415
+1427
 168
-Neuspjele popravke:
-neuspjele-popravke
+Neuspješne popravke:
+neuspjesne-popravke
 17
 1
 11
@@ -424,13 +423,13 @@ Servis za popravke _**„SmartFix DF“**_ raznih tehničkih uređaja (PC, lapto
  Uspješnost odabranog broja radnih mjesta ogleda se u odnosu **ukupne zarade** servisa (zbroj obavljenih popravaka) i **cijene rada** angažiranih tehničara.
  U Excelu se tablično prikazuju dobiveni rezultati koji označavaju **optimalno rješenje**
 
+### 7. Dodatno:
+
+ Realiziran je simulacijski model u kojem pojedini tehničari mogu popravljati samo **određene skupine uređaja!**
+
 ## Zaključak
 
 > Ova simulacija daje nam mogućnost eksperimentiranja s brojem aktivnih tehničara kako bi pronašli optimalnu konfiguraciju koja minimizira vrijeme čekanja i maksimizira dobit servisa. Pritom prikazuje ukupnu zaradu, broj obavljenih popravaka i druge relevantne parametre.
-
-## Dodatno (prof. Krešimir)
-
-> Odraditi zadatak i realizirati simulacijski model u kojem pojedini tehničari mogu popravljati samo neke skupine uređaja!
 @#$#@#$#@
 default
 true
