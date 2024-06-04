@@ -16,6 +16,7 @@ _**SmartFix DF**_ je servis za popravke raznih tehničkih uređaja kao što su P
 &nbsp;
 
 ## Instalacija
+
 >### Kloniranje projekta:
 
 ```
@@ -33,7 +34,6 @@ Pokretanje projekta sa [__NetLogo__](https://ccl.northwestern.edu/netlogo/downlo
 ## Sadržaj
 
 1. Opis rada servisa
-   
    - Tehničari i plaće 
    - Vrijeme popravka i zarada
    - Raspored dolazaka i uređaja
@@ -41,12 +41,12 @@ Pokretanje projekta sa [__NetLogo__](https://ccl.northwestern.edu/netlogo/downlo
    - Parametri kontrole
    - Optimizacija i uspješnost
    - Dodatno
-        
+
+2. Pregled simulacijskog okruženja
 3. Zaključak
-   
-5. Pregled simulacijskog okruženja
      
 ---
+
 &nbsp;
 
 ## Opis rada servisa
@@ -87,13 +87,6 @@ Pokretanje projekta sa [__NetLogo__](https://ccl.northwestern.edu/netlogo/downlo
 
 &nbsp;
 
-## Zaključak
-
-Provedena simulacija pružila je dubinsku analizu učinkovitosti tehničara unutar servisnog okruženja, omogućujući pregled ključnih parametara kao što su zarada, troškovi te broj uspješnih i neuspješnih popravaka. Rezultati simulacije ukazuju na kritične točke u radnom procesu koje mogu biti optimizirane za poboljšanje cjelokupne učinkovitosti servisa. Prikupljeni podaci mogu poslužiti kao osnova za donošenje odluka o raspodjeli resursa, planiranju radnog vremena i strategijama za povećanje profitabilnosti. Ovaj pristup omogućuje bolju prilagodbu poslovanja prema dinamičnim zahtjevima tržišta, te poboljšava zadovoljstvo korisnika.
-
----
-
-&nbsp;
 ## Pregled simulacijskog okruženja
 
 ![Simulacijsko okruženje](https://github.com/Franjo7/Inteligentni-agenti-projekt/assets/94640801/2546db3e-e2e0-4075-bffd-0cbeef337b4a)
@@ -102,4 +95,14 @@ Provedena simulacija pružila je dubinsku analizu učinkovitosti tehničara unut
 
 &nbsp;
 
+## Zaključak
+
+Provedena simulacija pružila je dubinsku analizu učinkovitosti tehničara unutar servisnog okruženja, omogućujući pregled ključnih parametara kao što su zarada, troškovi te broj uspješnih i neuspješnih popravaka. Rezultati simulacije ukazuju na kritične točke u radnom procesu koje mogu biti optimizirane za poboljšanje cjelokupne učinkovitosti servisa. Prikupljeni podaci mogu poslužiti kao osnova za donošenje odluka o raspodjeli resursa, planiranju radnog vremena i strategijama za povećanje profitabilnosti. Ovaj pristup omogućuje bolju prilagodbu poslovanja prema dinamičnim zahtjevima tržišta, te poboljšava zadovoljstvo korisnika.
+
+---
+
+&nbsp;
+
 © Inteligentni Agenti (NetLogo) 2024.
+
+---
